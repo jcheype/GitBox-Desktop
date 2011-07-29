@@ -126,9 +126,8 @@
             </os>
          </activation>
          <properties>
-            <swt.groupId>org.eclipse.swt.cocoa</swt.groupId>
-            <swt.artifactId>macosx-64</swt.artifactId>
-            <xulrunner.classifier>macos</xulrunner.classifier>
+            <swt.groupId>org.eclipse.swt</swt.groupId>
+            <swt.artifactId>org.eclipse.swt.cocoa.macosx.x86_64</swt.artifactId>
             <jvm.additional-args>-XstartOnFirstThread</jvm.additional-args>
          </properties>
       </profile>
@@ -149,7 +148,7 @@
          </properties>
       </profile>
 
-      <!-- <profile>
+<!--      <profile>
        <id>mac-32</id>
        <activation>
           <os>
@@ -165,7 +164,7 @@
           <swt.artifactId>macosx</swt.artifactId>
           <jvm.additional-args>-XstartOnFirstThread -d32</jvm.additional-args>
        </properties>
-    </profile>  -->
+    </profile>-->
 
       <profile>
          <id>windows-64</id>
@@ -236,4 +235,10 @@
          </plugin>
       </plugins>
    </build>
+    <repositories>
+        <repository>
+            <id>eclipse-id</id>
+            <url>http://maven.eclipse.org/nexus/content/repositories/testing</url>
+        </repository>
+    </repositories>
 </project>
