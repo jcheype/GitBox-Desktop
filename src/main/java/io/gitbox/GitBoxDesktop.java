@@ -20,6 +20,8 @@ import org.eclipse.swt.widgets.TrayItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
@@ -70,6 +72,22 @@ public class GitBoxDesktop {
                 }
             });
 
+            final MenuItem mOpenDirectory = new MenuItem(menu, SWT.PUSH);
+            mOpenDirectory.setText("Open");
+            mOpenDirectory.setEnabled(Configuration.isValid()
+                    && Desktop.isDesktopSupported()
+                    && Desktop.getDesktop().isSupported(Desktop.Action.OPEN));
+            mOpenDirectory.addListener(SWT.Selection, new Listener() {
+                public void handleEvent(Event event) {
+                    Desktop desktop = Desktop.getDesktop();
+                    try {
+                        desktop.open(new File(Configuration.getDirectory()));
+                    } catch (IOException e) {
+                        LOG.error("Unable to open the repository directory", e);
+                    }
+                }
+            });
+
             final MenuItem mConfigWizard = new MenuItem(menu, SWT.PUSH);
             mConfigWizard.setText("Settings");
             mConfigWizard.addListener(SWT.Selection, new Listener() {
@@ -77,8 +95,12 @@ public class GitBoxDesktop {
                     WizardDialog dialog = new WizardDialog(shell, new ConfigWizard());
                     dialog.open();
                     mStart.setEnabled(Configuration.isValid());
+                    mOpenDirectory.setEnabled(Configuration.isValid()
+                            && Desktop.isDesktopSupported()
+                            && Desktop.getDesktop().isSupported(Desktop.Action.OPEN));
                 }
             });
+
 
             // Separator before exist
             new MenuItem(menu, SWT.SEPARATOR);
