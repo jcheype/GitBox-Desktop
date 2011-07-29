@@ -2,53 +2,21 @@ package io.gitbox.wizard;
 
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 /**
- * @author Jean-Baptiste Lemée
+ * @author Jean-Baptiste lemée
  */
-public class WizardComposite extends Composite {
-    public WizardComposite(Composite parent) {
-        super(parent, SWT.NONE);
-        buildControls();
-    }
+public class ConfigWizard extends Wizard {
 
-    protected void buildControls() {
-        final Composite parent = this;
-        FillLayout layout = new FillLayout();
-        parent.setLayout(layout);
-
-        Button dialogBtn = new Button(parent, SWT.PUSH);
-        dialogBtn.setText("Wizard Dialog...");
-        dialogBtn.addSelectionListener(new SelectionListener() {
-
-            public void widgetSelected(SelectionEvent e) {
-                WizardDialog dialog = new WizardDialog(parent.getShell(),
-                        new ProjectWizard());
-                dialog.open();
-            }
-
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
-        });
-    }
-
-}
-
-class ProjectWizard extends Wizard {
-
-    public ProjectWizard() {
+    public ConfigWizard() {
         super();
     }
 
@@ -166,17 +134,45 @@ class ChooseDirectoryPage extends WizardPage {
         super(PAGE_NAME, "Choose Directory Page", null);
     }
 
-    public void createControl(Composite parent) {
-        Composite topLevel = new Composite(parent, SWT.NONE);
-        topLevel.setLayout(new GridLayout(2, false));
+    public void createControl(final Composite parent) {
+        final Composite topLevel = new Composite(parent, SWT.NONE);
+        topLevel.setLayout(new GridLayout(3, false));
 
         Label l = new Label(topLevel, SWT.CENTER);
         l.setText("Enter the directory to use:");
 
-        text = new Text(topLevel, SWT.SINGLE);
+        text = new Text(topLevel, SWT.BORDER);
         text.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
+        Button button = new Button(topLevel, SWT.PUSH);
+        button.setText("Browse...");
+        button.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent event) {
+                DirectoryDialog dlg = new DirectoryDialog(topLevel.getShell());
+
+                // Set the initial filter path according
+                // to anything they've selected or typed in
+                dlg.setFilterPath(text.getText());
+
+                // Change the title bar text
+                dlg.setText("SWT's DirectoryDialog");
+
+                // Customizable message displayed in the dialog
+                dlg.setMessage("Select a directory");
+
+                // Calling open() will open and run the dialog.
+                // It will return the selected directory, or
+                // null if user cancels
+                String dir = dlg.open();
+                if (dir != null) {
+                    // Set the text box to the new selection
+                    text.setText(dir);
+                }
+            }
+        });
+
         setControl(topLevel);
+
         setPageComplete(true);
     }
 
