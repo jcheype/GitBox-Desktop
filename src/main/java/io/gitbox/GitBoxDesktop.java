@@ -5,6 +5,7 @@ import com.jcheype.gitbox.GitBox;
 import com.jcheype.gitbox.GitBoxController;
 import com.jcheype.gitbox.NotificationClient;
 import io.gitbox.wizard.ConfigWizard;
+import org.apache.commons.lang.SystemUtils;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -108,9 +109,9 @@ public class GitBoxDesktop {
             };
             item.addListener(SWT.MenuDetect, displayMenu);
 
-            /*if(OsType.current != OsType.Mac) {
-              item.addListener(SWT.Selection, displayMenu );
-           } */
+            if (!SystemUtils.IS_OS_MAC) {
+                item.addListener(SWT.Selection, displayMenu);
+            }
 
             item.setImage(image);
         }
