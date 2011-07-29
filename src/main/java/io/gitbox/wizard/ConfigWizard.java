@@ -12,7 +12,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
 /**
- * @author Jean-Baptiste lemée
+ * @author Jean-Baptiste Lemée
  */
 public class ConfigWizard extends Wizard {
 

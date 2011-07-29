@@ -1,5 +1,9 @@
 package io.gitbox;
 
+import com.jcheype.gitbox.AeSimpleSHA1;
+import com.jcheype.gitbox.GitBox;
+import com.jcheype.gitbox.GitBoxController;
+import com.jcheype.gitbox.NotificationClient;
 import io.gitbox.wizard.ConfigWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
@@ -15,8 +19,11 @@ import org.eclipse.swt.widgets.TrayItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
 /**
- * @author Jean-Baptiste lemée
+ * @author Jean-Baptiste Lemée
  */
 public class GitBoxDesktop {
     private static final Logger LOG = LoggerFactory.getLogger(GitBoxDesktop.class);
@@ -51,6 +58,32 @@ public class GitBoxDesktop {
                 public void handleEvent(Event event) {
                     WizardDialog dialog = new WizardDialog(shell, new ConfigWizard());
                     dialog.open();
+                }
+            });
+
+            final MenuItem mStart = new MenuItem(menu, SWT.PUSH);
+            mStart.setText("Launch");
+            mStart.setEnabled(Configuration.isValid());
+            mStart.addListener(SWT.Selection, new Listener() {
+                public void handleEvent(Event event) {
+
+                    try {
+                        String remoteSha1 = AeSimpleSHA1.SHA1(Configuration.getGitRepository());
+                        GitBox gitBox = new GitBox(Configuration.getDirectory());
+                        NotificationClient notificationClient = new NotificationClient(Configuration.getNotificationServer() + remoteSha1);
+
+                        GitBoxController gitBoxController = new GitBoxController(notificationClient, gitBox);
+                        gitBoxController.getGitBox().start();
+                        gitBoxController.getNotificationClient().start();
+                        gitBoxController.getGitBoxFileListener().start();
+                    } catch (NoSuchAlgorithmException e) {
+                        LOG.error(e.getMessage(), e);
+                    } catch (IOException e) {
+                        LOG.error(e.getMessage(), e);
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage(), e);
+                    }
+
                 }
             });
 
