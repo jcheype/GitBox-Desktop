@@ -44,24 +44,6 @@ public class GitBoxDesktop {
             // Add menu
             final Menu menu = new Menu(shell, SWT.POP_UP);
 
-            // Add menu entries
-            final MenuItem mu = new MenuItem(menu, SWT.PUSH);
-            mu.setText("Test");
-            mu.addListener(SWT.Selection, new Listener() {
-                public void handleEvent(Event event) {
-                    LOG.info("Menu Click !");
-                }
-            });
-
-            final MenuItem mWizard = new MenuItem(menu, SWT.PUSH);
-            mWizard.setText("Settings");
-            mWizard.addListener(SWT.Selection, new Listener() {
-                public void handleEvent(Event event) {
-                    WizardDialog dialog = new WizardDialog(shell, new ConfigWizard());
-                    dialog.open();
-                }
-            });
-
             final MenuItem mStart = new MenuItem(menu, SWT.PUSH);
             mStart.setText("Launch");
             mStart.setEnabled(Configuration.isValid());
@@ -85,6 +67,16 @@ public class GitBoxDesktop {
                         LOG.error(e.getMessage(), e);
                     }
 
+                }
+            });
+
+            final MenuItem mConfigWizard = new MenuItem(menu, SWT.PUSH);
+            mConfigWizard.setText("Settings");
+            mConfigWizard.addListener(SWT.Selection, new Listener() {
+                public void handleEvent(Event event) {
+                    WizardDialog dialog = new WizardDialog(shell, new ConfigWizard());
+                    dialog.open();
+                    mStart.setEnabled(Configuration.isValid());
                 }
             });
 

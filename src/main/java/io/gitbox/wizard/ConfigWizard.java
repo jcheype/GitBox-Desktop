@@ -1,5 +1,8 @@
 package io.gitbox.wizard;
 
+import com.jcheype.gitbox.GitBox;
+import io.gitbox.Configuration;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardPage;
@@ -10,11 +13,18 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Jean-Baptiste Lemée
  */
 public class ConfigWizard extends Wizard {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigWizard.class);
 
     public ConfigWizard() {
         super();
@@ -32,9 +42,21 @@ public class ConfigWizard extends Wizard {
             System.out.println("Using default directory");
         } else {
             ChooseDirectoryPage choosePage = getChoosePage();
-            System.out.println("Using directory: " + choosePage.getDirectory());
+            Configuration.setDirectory(choosePage.getDirectory());
+            Configuration.setNotificationServer(choosePage.getNotificationServer());
+            Configuration.setGitRepository(choosePage.getGitRepository());
+
+            if(StringUtils.isNotBlank(choosePage.getDirectory())
+                    && StringUtils.isNotBlank(choosePage.getGitRepository())
+                    &&!containsDirectory(".git", choosePage.getDirectory())){
+                GitBox.cloneGit(choosePage.getGitRepository(), new File(choosePage.getDirectory()));
+            }
         }
         return true;
+    }
+
+     private static boolean containsDirectory(String subDirectory, String directory) {
+        return new File(directory + subDirectory).exists();
     }
 
     private ChooseDirectoryPage getChoosePage() {
@@ -128,7 +150,9 @@ class DirectoryPage extends WizardPage {
 class ChooseDirectoryPage extends WizardPage {
     public static final String PAGE_NAME = "Choose Directory";
 
-    private Text text;
+    private Text directoryText;
+    private Text notificationServerText;
+    private Text gitRepositoryURLText;
 
     public ChooseDirectoryPage() {
         super(PAGE_NAME, "Choose Directory Page", null);
@@ -141,8 +165,9 @@ class ChooseDirectoryPage extends WizardPage {
         Label l = new Label(topLevel, SWT.CENTER);
         l.setText("Enter the directory to use:");
 
-        text = new Text(topLevel, SWT.BORDER);
-        text.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        directoryText = new Text(topLevel, SWT.BORDER);
+        directoryText.setText(Configuration.getDirectory());
+        directoryText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
         Button button = new Button(topLevel, SWT.PUSH);
         button.setText("Browse...");
@@ -152,9 +177,9 @@ class ChooseDirectoryPage extends WizardPage {
 
                 // Set the initial filter path according
                 // to anything they've selected or typed in
-                dlg.setFilterPath(text.getText());
+                dlg.setFilterPath(directoryText.getText());
 
-                // Change the title bar text
+                // Change the title bar directoryText
                 dlg.setText("SWT's DirectoryDialog");
 
                 // Customizable message displayed in the dialog
@@ -165,11 +190,25 @@ class ChooseDirectoryPage extends WizardPage {
                 // null if user cancels
                 String dir = dlg.open();
                 if (dir != null) {
-                    // Set the text box to the new selection
-                    text.setText(dir);
+                    // Set the directoryText box to the new selection
+                    directoryText.setText(dir);
                 }
             }
         });
+
+        Label l2 = new Label(topLevel, SWT.CENTER);
+        l2.setText("Enter the notification server to use:");
+
+        notificationServerText = new Text(topLevel, SWT.BORDER);
+        notificationServerText.setText(Configuration.getNotificationServer());
+        notificationServerText.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false, 2, 1));
+
+        Label l3 = new Label(topLevel, SWT.CENTER);
+        l3.setText("Enter the git repository to use:");
+
+        gitRepositoryURLText = new Text(topLevel, SWT.BORDER);
+        gitRepositoryURLText.setText(Configuration.getGitRepository());
+        gitRepositoryURLText.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false, 2, 1));
 
         setControl(topLevel);
 
@@ -177,6 +216,14 @@ class ChooseDirectoryPage extends WizardPage {
     }
 
     public String getDirectory() {
-        return text.getText();
+        return directoryText.getText();
+    }
+
+    public String getGitRepository() {
+        return gitRepositoryURLText.getText();
+    }
+
+    public String getNotificationServer() {
+        return notificationServerText.getText();
     }
 }

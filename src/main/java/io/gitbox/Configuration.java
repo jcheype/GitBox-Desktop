@@ -1,9 +1,11 @@
 package io.gitbox;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.graphics.ImageData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.rmi.runtime.Log;
 
 import java.io.*;
 import java.net.URL;
@@ -25,12 +27,18 @@ public class Configuration {
         return new ImageData(Configuration.class.getClassLoader().getResourceAsStream("051.gif"));
     }
 
-    private static String loadProperty(String propertyName) throws IOException {
-        Properties properties = loadProperties();
-        if (properties == null) {
-            return null;
+    private static String loadProperty(String propertyName) {
+        Properties properties = null;
+        try {
+            properties = loadProperties();
+        } catch (IOException e) {
+            LOG.warn("Unable to load the " + propertyName + " property", e);
         }
-        return properties.getProperty(propertyName);
+
+        if (properties == null) {
+            return StringUtils.EMPTY;
+        }
+        return properties.getProperty(propertyName, StringUtils.EMPTY);
     }
 
     private static Properties loadProperties() throws IOException {
@@ -43,57 +51,71 @@ public class Configuration {
         return properties;
     }
 
-    public static String getDirectory() throws IOException {
-        return loadProperty(DIRECTORY_PROPERTY_NAME);
+    public static String getDirectory() {
+        String directory = loadProperty(DIRECTORY_PROPERTY_NAME);
+        if (StringUtils.isNotBlank(directory) && !directory.endsWith("/")) {
+            directory += "/";
+        }
+        return directory;
     }
 
-    public static String getGitRepository() throws IOException {
+    public static String getGitRepository() {
         return loadProperty(GIT_REPOSITORY_PROPERTY_NAME);
     }
 
-    public static String getNotificationServer() throws IOException {
+    public static String getNotificationServer() {
         String notifServer = loadProperty(NOTIFICATION_SERVER_PROPERTY_NAME);
-        if (notifServer != null && !notifServer.endsWith("/")) {
+        if (StringUtils.isNotBlank(notifServer) && !notifServer.endsWith("/")) {
             notifServer += "/";
         }
         return notifServer;
     }
 
     public static boolean isValid() {
-        try {
-            return StringUtils.isNotBlank(getNotificationServer())
-                    && StringUtils.isNotBlank(getGitRepository())
-                    && StringUtils.isNotBlank(getDirectory());
-        } catch (IOException e) {
-            return false;
-        }
+        return StringUtils.isNotBlank(getNotificationServer())
+                && StringUtils.isNotBlank(getGitRepository())
+                && StringUtils.isNotBlank(getDirectory())
+                && containsDirectory(".git", getDirectory());
     }
 
-    public static void setDirectory(String directory) throws IOException {
+    private static boolean containsDirectory(String subDirectory, String directory) {
+        return new File(directory + subDirectory).exists();
+    }
+
+    public static void setDirectory(String directory) {
+        if (StringUtils.isNotBlank(directory) && !directory.endsWith("/")) {
+            directory += "/";
+        }
         updateProperty(DIRECTORY_PROPERTY_NAME, directory);
     }
 
-    public static void setGitRepository(String gitRepository) throws IOException {
+    public static void setGitRepository(String gitRepository) {
         updateProperty(GIT_REPOSITORY_PROPERTY_NAME, gitRepository);
     }
 
-    public static void setNotificationServer(String notifServer) throws IOException {
-        if (notifServer != null && !notifServer.endsWith("/")) {
+    public static void setNotificationServer(String notifServer) {
+        if (StringUtils.isNotBlank(notifServer) && !notifServer.endsWith("/")) {
             notifServer += "/";
         }
         updateProperty(NOTIFICATION_SERVER_PROPERTY_NAME, notifServer);
     }
 
-    private static void updateProperty(String propertyName, String propertyValue) throws IOException {
+    private static void updateProperty(String propertyName, String propertyValue) {
         URL propertiesURL = Configuration.class.getClassLoader().getResource(PROPERTIES_FILE);
         if (propertiesURL == null) {
             LOG.error("Unable to find the properties file");
             return;
         }
-        Properties properties = loadProperties();
-        properties.setProperty(propertyName,propertyValue);
-        File file = new File(propertiesURL.toString().substring(6));
-        properties.store(new FileOutputStream(file), "" );
+        Properties properties = null;
+        try {
+            properties = loadProperties();
+            properties.setProperty(propertyName, propertyValue);
+            File file = new File(propertiesURL.toString().substring(6));
+            properties.store(new FileOutputStream(file), "");
+        } catch (IOException e) {
+            LOG.error("Unable to load the properties file");
+        }
+
     }
 
 }
