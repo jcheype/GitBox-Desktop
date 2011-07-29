@@ -183,6 +183,7 @@
                         <argLine>${jvm.additional-args}</argLine>
                     </configuration>
                 </plugin>
+
             </plugins>
         </pluginManagement>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -222,53 +223,8 @@
                     </archive>
                 </configuration>
             </plugin>
-<<<<<<< HEAD
         </plugins>
     </build>
-
-=======
-         </plugins>
-      </pluginManagement>
-      <sourceDirectory>src/main/java</sourceDirectory>
-      <testSourceDirectory>src/test/java</testSourceDirectory>
-      <plugins>
-         <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <version>1.2</version>
-            <executions>
-               <execution>
-                  <goals>
-                     <goal>exec</goal>
-                  </goals>
-               </execution>
-            </executions>
-            <configuration>
-               <classpathScope>runtime</classpathScope>
-               <executable>java</executable>
-               <arguments>
-                  <argument>${jvm.additional-args}</argument>
-                  <argument>-classpath</argument>
-                  <classpath/>
-                  <argument>${main.class}</argument>
-               </arguments>
-            </configuration>
-         </plugin>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <configuration>
-               <archive>
-                  <manifest>
-                     <mainClass>${main.class}</mainClass>
-                     <addClasspath>true</addClasspath>
-                  </manifest>
-               </archive>
-            </configuration>
-         </plugin>
-      </plugins>
-   </build>
->>>>>>> dd1e69d475a33fb40f572f202e02ceb2db784cd4
     <repositories>
         <repository>
             <id>eclipse-id</id>
