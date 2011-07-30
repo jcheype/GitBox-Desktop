@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import sun.rmi.runtime.Log;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -43,11 +45,16 @@ public class Configuration {
 
     private static Properties loadProperties() throws IOException {
         Properties properties = new Properties();
-        InputStream propertiesInput = Configuration.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE);
-        if (propertiesInput == null) {
-            return null;
+        File file = new File(System.getProperty("user.home"), ".gitbox");
+        if(file.exists())
+            properties.load(new FileInputStream(file));
+        else{
+            InputStream propertiesInput = Configuration.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE);
+            if (propertiesInput == null) {
+                return null;
+            }
+            properties.load(propertiesInput);
         }
-        properties.load(propertiesInput);
         return properties;
     }
 
@@ -110,10 +117,13 @@ public class Configuration {
         try {
             properties = loadProperties();
             properties.setProperty(propertyName, propertyValue);
-            File file = new File(propertiesURL.toString().substring(6));
+            //File file = new File(propertiesURL.toURI());
+            File file = new File(System.getProperty("user.home"), ".gitbox");
             properties.store(new FileOutputStream(file), "");
         } catch (IOException e) {
-            LOG.error("Unable to load the properties file");
+            LOG.error("Unable to load the properties file",e);
+//        } catch (URISyntaxException e) {
+//            LOG.error("Unable to load the properties file",e);
         }
 
     }

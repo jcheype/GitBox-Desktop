@@ -30,6 +30,7 @@ import java.security.NoSuchAlgorithmException;
  */
 public class GitBoxDesktop {
     private static final Logger LOG = LoggerFactory.getLogger(GitBoxDesktop.class);
+    private static GitBoxController gitBoxController;
 
     public static void main(String... args) {
         final Display display = new Display();
@@ -57,7 +58,7 @@ public class GitBoxDesktop {
                         GitBox gitBox = new GitBox(Configuration.getDirectory());
                         NotificationClient notificationClient = new NotificationClient(Configuration.getNotificationServer() + remoteSha1);
 
-                        GitBoxController gitBoxController = new GitBoxController(notificationClient, gitBox);
+                        gitBoxController = new GitBoxController(notificationClient, gitBox);
                         gitBoxController.getGitBox().start();
                         gitBoxController.getNotificationClient().start();
                         gitBoxController.getGitBoxFileListener().start();
@@ -111,6 +112,10 @@ public class GitBoxDesktop {
             mi.addListener(SWT.Selection, new Listener() {
                 public void handleEvent(Event event) {
                     shell.dispose();
+                    gitBoxController.getGitBoxFileListener().stop();
+                    gitBoxController.getNotificationClient().stop();
+                    gitBoxController.getGitBox().stop();
+                    System.exit(0);
                 }
             });
 

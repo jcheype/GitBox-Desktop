@@ -102,32 +102,30 @@
             <artifactId>slf4j-simple</artifactId>
             <version>1.6.1</version>
         </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <profiles>
-        <profile>
-            <id>windows</id>
-            <activation>
-                <os>
-                    <arch>x86</arch>
-                    <family>windows</family>
-                </os>
-            </activation>
-            <properties>
-                <swt.groupId>org.eclipse.swt</swt.groupId>
-                <swt.artifactId>org.eclipse.swt.win32.win32.x86</swt.artifactId>
-                <xulrunner.classifier>win32</xulrunner.classifier>
-                <jvm.additional-args>-ea</jvm.additional-args>
-            </properties>
-        </profile>
+        <!--      <profile>
+           <id>windows</id>
+           <activation>
+              <os>
+                 <arch>x86</arch>
+                 <family>windows</family>
+              </os>
+           </activation>
+           <properties>
+              <swt.groupId>org.eclipse.swt.win32.win32</swt.groupId>
+              <swt.artifactId>x86</swt.artifactId>
+              <xulrunner.classifier>win32</xulrunner.classifier>
+              <jvm.additional-args>-ea</jvm.additional-args>
+           </properties>
+        </profile>-->
 
         <profile>
             <id>mac-64</id>
@@ -143,39 +141,56 @@
                 <jvm.additional-args>-XstartOnFirstThread</jvm.additional-args>
             </properties>
         </profile>
-        <profile>
-            <id>linux-64</id>
-            <activation>
-                <os>
-                    <arch>amd64</arch>
-                    <family>unix</family>
-                    <name>linux</name>
-                </os>
-            </activation>
-            <properties>
-                <swt.groupId>org.eclipse.swt.gtk</swt.groupId>
-                <swt.artifactId>linux.x86.64</swt.artifactId>
-                <xulrunner.classifier>linux-i686</xulrunner.classifier>
-                <jvm.additional-args>-ea</jvm.additional-args>
-            </properties>
-        </profile>
+        <!--      <profile>
+           <id>linux-64</id>
+           <activation>
+              <os>
+                 <arch>amd64</arch>
+                 <family>unix</family>
+                 <name>linux</name>
+              </os>
+           </activation>
+           <properties>
+              <swt.groupId>org.eclipse.swt.gtk</swt.groupId>
+              <swt.artifactId>linux.x86.64</swt.artifactId>
+              <xulrunner.classifier>linux-i686</xulrunner.classifier>
+              <jvm.additional-args>-ea</jvm.additional-args>
+           </properties>
+        </profile>-->
 
+        <!--      <profile>
+           <id>mac-32</id>
+           <activation>
+              <os>
+                 <name>mac os x</name>
+              </os>
+              <property>
+                 <name>sun.arch.data.model</name>
+                 <value>32</value>
+              </property>
+           </activation>
+           <properties>
+              <swt.groupId>org.eclipse.swt.carbon</swt.groupId>
+              <swt.artifactId>macosx</swt.artifactId>
+              <jvm.additional-args>-XstartOnFirstThread -d32</jvm.additional-args>
+           </properties>
+        </profile>-->
 
-        <profile>
-            <id>windows-64</id>
-            <activation>
-                <os>
-                    <arch>amd64</arch>
-                    <family>windows</family>
-                </os>
-            </activation>
-            <properties>
-                <swt.groupId>org.eclipse.swt</swt.groupId>
-                <swt.artifactId>org.eclipse.swt.win32.win32.x86_64</swt.artifactId>
-                <xulrunner.classifier>win32</xulrunner.classifier>
-                <jvm.additional-args>-ea</jvm.additional-args>
-            </properties>
-        </profile>
+        <!--      <profile>
+           <id>windows-64</id>
+           <activation>
+              <os>
+                 <arch>amd64</arch>
+                 <family>windows</family>
+              </os>
+           </activation>
+           <properties>
+              <swt.groupId>org.eclipse.swt.win32.win32</swt.groupId>
+              <swt.artifactId>x86_64</swt.artifactId>
+              <xulrunner.classifier>win32</xulrunner.classifier>
+              <jvm.additional-args>-ea</jvm.additional-args>
+           </properties>
+        </profile>-->
     </profiles>
 
     <build>
@@ -228,6 +243,38 @@
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.dstovall</groupId>
+                <artifactId>onejar-maven-plugin</artifactId>
+                <version>1.4.4</version>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <!-- Optional -->
+                            <onejarVersion>0.97</onejarVersion>
+                            <!-- Optional, use only if you need to include native libraries (dll's) -->
+                            <binlibs>
+                                <fileSet>
+                                    <directory>${project.basedir}/native</directory>
+                                    <includes>
+                                        <include>*.dll</include>
+                                        <include>*.so</include>
+                                        <include>*.dylib</include>
+                                        <include>*.jnilib</include>
+                                    </includes>
+                                </fileSet>
+                            </binlibs>
+                            <!-- Optional, default is false -->
+                            <attachToBuild>true</attachToBuild>
+                            <!-- Optional, default is "onejar" -->
+                            <classifier>onejar</classifier>
+                        </configuration>
+                        <goals>
+                            <goal>one-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
